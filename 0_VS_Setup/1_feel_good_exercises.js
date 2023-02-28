@@ -53,9 +53,9 @@
 // Fix the two errors below with a red-line underneath.
 
 // a. Hint: follow the pattern.
-a = 1
-b = 2
-c = 3
+a = 1;
+b = 2;
+c = 3;
 helloWorld()
 // b. Hint: This function needs a name after the word function.
 function helloWorld() {

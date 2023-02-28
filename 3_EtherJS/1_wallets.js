@@ -17,6 +17,7 @@
 // Ethers JS:
 
 // -  https://docs.ethers.org/v6/
+// to search use v5
 
 // There is also a crush course on JS fundamentals and asynchronous code 
 // under the local folders:
@@ -39,8 +40,8 @@
 // be executed, until you tell the process to stop. 
 
 // This line will tell the process to stop.
-process.exit(0);
-console.log('I am sad line...I will not be printed to console :(');
+//console.log('I am sad line...I will not be printed to console :(');
+//process.exit(0);
 
 // a. Move the sad line above and below `process.exit(0);` to check that the
 // process stops where it is intended to. When you are done, comment out both
@@ -54,7 +55,12 @@ console.log('I am sad line...I will not be printed to console :(');
 let exercise = 0;
 
 // Your code here!
+function exit() {
+    console.log("Finished after exercise " + exercise)
+    process.exit(0);
+}
 
+//exit();
 // c. Bonus. Did you realize that JavaScript/Node.JS has three different ways
 // of declaring a function?
 
@@ -90,7 +96,7 @@ exercise = 1;
 
 require('dotenv').config();
 
-// exit();
+//exit();
 
 // Exercise 2. Create .env file.
 ////////////////////////////////
@@ -111,7 +117,7 @@ exercise = 2;
 // Hint: you can copy .env_sample, modify its content and save it as .env.
  
 // See if it worked.
-console.log(process.env);
+//console.log(process.env);
 
 // exit();
 
@@ -128,8 +134,10 @@ exercise = '3a';
 // Hint: https://javascript.info/ifelse
 
 // Your code here!
-
-// exit();
+//if (process.env.METAMASK_ACCOUNT_1 != "") {
+//    console.log("Variable is there")
+//}
+//exit();
 
 // b. Create an array with all the names of the variables written in the .env
 // file. Then print the lenght of the array.
@@ -138,8 +146,17 @@ exercise = '3a';
 exercise = '3b';
 
 // Your code here!
+let variablesToCheck = [
+    "INFURA_KEY", "INFURA_GOERLI_API_URL", "INFURA_MAINNET_API_URL",
+    "ALCHEMY_KEY", "ALCHEMY_GOERLI_API_URL", "ALCHEMY_MAINNET_API_URL",
+    "METAMASK_1_ADDRESS", "METAMASK_1_PRIVATE_KEY",
+    "METAMASK_2_ADDRESS", "METAMASK_2_PRIVATE_KEY",
+    "ETHERSCAN_KEY"
+];
 
-// exit();
+console.log('Num of variables in .env to check: ', variablesToCheck.length);
+
+//exit();
 
 // c. Loop through all the elements of the array and check that the variable
 // is set and non-empty under `process.env`.
@@ -150,16 +167,26 @@ exercise = '3b';
 
 
 // Solution 1. forEach.
+//console.log(process.env)
 variablesToCheck.forEach(v => {
-    // Your code here!
+    if (!process.env[v]) {
+        console.log(process.env[v])
+        console.log(`Missing ${v}, fix your .env file`);
+    }
 });
 
 // Solution 2. For-loop.
 
 // Your code here!
+for (let index = 0; index < variablesToCheck.length; index++) {
+    const v = variablesToCheck[index];
+    if (!process.env[v]) {
+        console.log(process.env[v])
+        console.log(`Missing ${v}, fix your .env file`);
+    }
+}
 
-
-// exit();
+//exit();
 
 
 // Exercise 4. Create a Random Wallet.
@@ -171,9 +198,12 @@ const ethers = require("ethers");
 // a. Create a random wallet and print the address, the private key,
 // and the mnenomic phrase.
 // Hint: ethers.Wallet.createRandom();
-
-
-// exit();
+var wallet = ethers.Wallet.createRandom();
+/*console.log(wallet);
+console.log(wallet.address);
+console.log(wallet.privateKey);
+console.log(wallet.mnemonic.phrase);*/
+//exit();
 
 // b. Bonus. Print the derivation path of the wallet and check that it is
 // equal to `baseDevPath`. 
@@ -193,7 +223,9 @@ let baseDevPath = "m/44'/60'/0'/0/";
 console.log("Derivation path:", wallet.path);
 
 // Your code here!
-
+if (wallet.path !== baseDevPath) {
+    console.log("not equal")
+}
 
 // exit();
 
@@ -209,4 +241,4 @@ exercise = 5;
 
 // Your code here!
 
-// exit();
+exit();

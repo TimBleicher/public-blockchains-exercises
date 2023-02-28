@@ -247,7 +247,7 @@ let mnemonic = wallet.mnemonic.phrase;
 
 let path, myWallet;
 for (let i = 0; i < 10; i++) {
-  path = `${baseDevPath}${i}`;
+  path = baseDevPath + i;
   myWallet = ethers.HDNodeWallet.fromPhrase(mnemonic, path);
   console.log("Address", i, myWallet.address);
   console.log("Private key", i, myWallet.privateKey);

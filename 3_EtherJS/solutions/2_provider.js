@@ -44,8 +44,8 @@ const ethers = require("ethers");
 // parameters it needs (nested hint: you need something from the .env file).
 
 const providerKey = process.env.INFURA_KEY;
-
-const mainnetInfuraUrl = `${process.env.INFURA_MAINNET}${providerKey}`;
+console.log(providerKey)
+const mainnetInfuraUrl = `${process.env.INFURA_MAINNET_API_URL}${providerKey}`;
 // console.log(mainnetInfuraUrl);
 const mainnetProvider = new ethers.JsonRpcProvider(mainnetInfuraUrl);
 
@@ -77,7 +77,7 @@ const network = async () => {
 };
 
 // which you can then call:
-// network();
+ network();
 
 // The second (less compact) notation has the advantage that we can invoke
 // the code only when needed, so it is preferred in this exercise sheet.
