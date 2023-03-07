@@ -20,10 +20,15 @@
 // Hint: As you did in file 1_wallet and 2_provider.
 
 // Your code here!
+require('dotenv').config();
+const ethers = require("ethers");
 
 // b. Create a Goerli provider.
 
 // Your code here!
+const providerKey = process.env.INFURA_KEY;
+const goerliInfuraUrl = `${process.env.INFURA_GOERLI_API_URL}${providerKey}`;
+const goerliProvider = new ethers.JsonRpcProvider(goerliInfuraUrl);
 
 // Exercise 1. Create a Signer.
 ///////////////////////////////
@@ -40,6 +45,8 @@
 // Hint2: if you get an error here, check that the private key begins with "0x".
 
 // Your code here!
+let signer = new ethers.Wallet(process.env.METAMASK_1_PRIVATE_KEY);
+//console.log(signer.address);
 
 // Exercise 2. Sign something.
 //////////////////////////////
@@ -47,9 +54,12 @@
 const sign = async (message = 'Hello world') => {
     
     // Your code here!
+    const signature = await signer.signMessage(message);
+    console.log(signature);
+
 };
 
-// sign();
+//sign();
 
 // Exercise 3. Connect to the blockchain. 
 /////////////////////////////////////////
@@ -63,9 +73,12 @@ const sign = async (message = 'Hello world') => {
 const connect = async() => {
     
     // Your code here!
+    const goerliNet = await signer.connect(goerliProvider);
+    let nonce = await goerliNet.getNonce();
+    console.log(nonce);
 };
 
-// connect();
+//connect();
 
 // c. Replace the signer created above at exercise 1 with one that takes the 
 // Goerli provider as second parameter. This is necessary even
@@ -74,7 +87,7 @@ const connect = async() => {
 // and the remaning of the exercises. If unclear, just check the solution :)
 
 // Replace the signer created above.
-
+signer = new ethers.Wallet(process.env.METAMASK_1_PRIVATE_KEY, goerliProvider);
 
 
 // Exercise 4. Send a transaction.
@@ -97,11 +110,31 @@ const connect = async() => {
 const account2 = process.env.METAMASK_2_ADDRESS;
 
 const sendTransaction = async () => {
+    let b1 = await goerliProvider.getBalance(signer.address);
+    b1 = ethers.formatEther(b1);
+    let b2 = await goerliProvider.getBalance(account2);
+    b2 = ethers.formatEther(b2);
 
     // Your code here!
+    var trans = await signer.sendTransaction({
+        to: account2,
+        value: ethers.parseEther("0.01")
+    })
+    console.log("Waiting...")
+    await trans.wait();
+    console.log("mined")
+    let newb1 = await goerliProvider.getBalance(signer.address);
+    newb1 = ethers.formatEther(newb1);
+    let newb2 = await goerliProvider.getBalance(account2);
+    newb2 = ethers.formatEther(newb2);
+
+    let diff1 = newb1 - b1;
+    let diff2 = newb2 - b2;
+    console.log("Account 1 difference: " + diff1);
+    console.log("Account 2 difference: " + diff2);
 };
 
-// sendTransaction();
+//sendTransaction();
 
 
 // Exercise 5. Meddling with Gas.
@@ -167,7 +200,24 @@ const sendTransaction = async () => {
 // a, b, c. 
 const checkGasPrices = async () => {
 
-    // Your code here!
+    //a
+    let trans = await signer.populateTransaction({
+        to: account2,
+        value: ethers.parseEther("0.01"),
+    });
+    console.log('Gas Limit: ' + ethers.formatUnits(trans.gasLimit, 'gwei'));
+    console.log('MaxFeePerGas: ' + ethers.formatUnits(trans.maxFeePerGas, 'gwei'));
+    console.log('MaxPriorityFeePerGas: ' + ethers.formatUnits(trans.maxPriorityFeePerGas, 'gwei'));
+
+    //b
+    const feeData = await goerliProvider.getFeeData();
+    console.log('Gas Price: ' + ethers.formatUnits(feeData.gasPrice, 'gwei'));
+    console.log('MaxFeePerGas: ' + ethers.formatUnits(feeData.maxFeePerGas, 'gwei'));
+    console.log('MaxPriorityFeePerGas: ' + ethers.formatUnits(feeData.maxPriorityFeePerGas, 'gwei'));
+
+    //c
+    const prevBlock = await goerliProvider.getBlock("latest");
+    console.log('BaseFeePerGas', ethers.formatUnits(prevBlock.baseFeePerGas, 'gwei'));
 
 };
 
@@ -188,12 +238,24 @@ const checkGasPrices = async () => {
 
 // d. e.
 const sendCheaperTransaction = async () => {
+    const feeData = await goerliProvider.getFeeData();
+    console.log('Gas Price: ' + ethers.formatUnits(feeData.gasPrice, 'gwei'));
+    console.log('MaxFeePerGas: ' + ethers.formatUnits(feeData.maxFeePerGas, 'gwei'));
+    console.log('MaxPriorityFeePerGas: ' + ethers.formatUnits(feeData.maxPriorityFeePerGas, 'gwei'));
 
-    // Your code here!
+    let trans = await signer.sendTransaction({
+        to: account2,
+        value: ethers.parseEther("0.01"),
+        maxFeePerGas: feeData.maxFeePerGas - 5000000000n
+    });
+    console.log('Waiting');
+    let receipt = await trans.wait();
+    console.log(receipt);
+    console.log('Done');
 
 };
 
-// sendCheaperTransaction();
+sendCheaperTransaction();
 
 
 

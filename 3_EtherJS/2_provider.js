@@ -200,13 +200,37 @@ const checkBlockTime = async (providerName = "mainnet", blocks2check = 3) => {
 
 const checkBlockTime2 = async (providerName = "mainnet", blocks2check = 3) => {
 
-    // Your code here!
+    let provider = providerName.toLowerCase() === "mainnet" ? 
+        mainnetProvider : goerliProvider;
 
+    // Get initial block number and timestamp.
+    let d = Date.now();
+    let blockNumber = await provider.getBlockNumber();
+    console.log(providerName, 'Current Block num:', blockNumber);
+
+    // Keep track of how many blocks to check.
+    let blocksChecked = 0;
+    provider.on("block", newBlockNumber => {
+        if (newBlockNumber !== blockNumber) {
+            // Check time.
+            let d2 = Date.now();
+            let timeDiff = d2 - d;
+            console.log(providerName, "New Block num:", newBlockNumber);
+            console.log(providerName, "It took: ", timeDiff);
+            
+            // Update loop variables.
+            d = d2;
+            if (++blocksChecked >= blocks2check) {
+                provider.off("block");
+            }
+            blockNumber = newBlockNumber;
+        }
+    });
 };
 
-// checkBlockTime2("mainnet");
+//checkBlockTime2("mainnet");
 
-// return;
+//return;
 
 // c. Now that you know the answer, you can check the 
 // "Ethereum Average Block Time Chart": https://etherscan.io/chart/blocktime
@@ -231,20 +255,23 @@ const blockInfo = async () => {
     let blockNumber = await mainnetProvider.getBlockNumber();
     let block = await mainnetProvider.getBlock(blockNumber);
     console.log(block);
-    let tx = await block.getTransaction(0);
-    console.log(tx);
-    let txHash = block.transactions[0];
 
-    const txReceipt = await mainnetProvider.getTransactionReceipt(txHash);
-    console.log(txReceipt);
-    console.log('A transaction from', txReceipt.to, 'to', txReceipt.from);
+    //let trans = await block.getTransaction(0);
+    //console.log(trans);
 
-    // Long list...
+    let count = block.transactions.length;
+    console.log("Count: " + count)
+
+    let transHash = block.transactions[0];
+    const transReceipt = await mainnetProvider.getTransactionReceipt(transHash);
+    //console.log(transReceipt);
+    console.log('Transaction from', transReceipt.to, 'to', transReceipt.from);
+
     block = await mainnetProvider.getBlock(blockNumber, true);
     //console.log(block.prefetchedTransactions);
 };
 
-//blockInfo();
+blockInfo();
 
 // Exercise 5. ENS names.
 //////////////////////////
