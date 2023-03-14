@@ -8,7 +8,8 @@
 // Hint: As you did multiple times now.
 
 // Your code here!
-
+require('dotenv').config();
+const ethers = require("ethers");
 
 // Exercise 1. Create a JSON RPC Provider for the (not) UniMa Blockchain.
 /////////////////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@
 // Hint: only accessible within UniMa network.
 
 // Your code here!
-
+const notUnima1Provider = new ethers.JsonRpcProvider(process.env.NOT_UNIMA_URL_1);
 // Exercise 2. Let's query the provider.
 ////////////////////////////////////////
 
@@ -37,10 +38,13 @@
 const networkInfo = async () => {
     
     // Your code here!
-
+    let net = await notUnima1Provider.getNetwork();
+    console.log("Network name: " + net.name);
+    console.log("Chain id: " + Number(net.chainId));
+    console.log("Block number: " + (await notUnima1Provider.getBlockNumber()));
 };
 
-// networkInfo();
+//networkInfo();
 
 
 // Exercise 3. Connect a signer to the (not) UniMa blockchain.
@@ -49,16 +53,17 @@ const networkInfo = async () => {
 // a. Use the same non-sensitive private key used in 3_signer.js.
 
 // Your code here!
+let signer = new ethers.Wallet(process.env.METAMASK_1_PRIVATE_KEY, notUnima1Provider);
 
 // b. Print the next nonce necessary to send a transaction.
 // Hint: .getNonce()
 
 const getNonce = async() => {
-    
-    // Your code here!
+    let nonce = await signer.getNonce();
+    console.log(nonce);
 };
 
-// getNonce();
+//getNonce();
 
 // Checkpoint. Is the nonce in the (not) Unima blockchain different
 // than in Goerli?
@@ -74,12 +79,11 @@ const getNonce = async() => {
 // b. Check your balance on UniMa network.
 
 const checkBalance = async () => {
-
-   // Your code here!
-
+    let balance = await notUnima1Provider.getBalance(signer.address);
+    console.log(ethers.formatEther(balance));
 };
 
-// checkBalance();
+checkBalance();
 
 // Exercise 5. Send a transaction.
 //////////////////////////////////
