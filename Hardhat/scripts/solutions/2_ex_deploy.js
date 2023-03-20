@@ -23,7 +23,7 @@
 const hre = require("hardhat");
 console.log('Hardhat\'s default network:', hre.config.defaultNetwork);
 
-return;
+//return;
 
 
 // Exercise 1. Understand Ethers in Hardhat.
@@ -40,7 +40,7 @@ return;
 const ethers = require("ethers");
 console.log("Ethers version:", ethers.version);
 
-return;
+//return;
 
 // b. Hardhat uses v5 because it offers a plugin that is a wrapped version of
 // Ethers which makes things a little easier. This is available under
@@ -49,7 +49,7 @@ return;
 
 console.log("HH Wrapped Ethers version:", hre.ethers.version);
 
-return;
+//return;
 
 // Exercise 1. Create a new Solidity contract.
 //////////////////////////////////////////////
@@ -164,7 +164,7 @@ async function main() {
     console.log(contractName + " unlock date:", date);
   };
 
-  // await readContract();
+   await readContract();
 
   // Exercise 3. Interact with your new Solidity contract (WRITE).
   ////////////////////////////////////////////////////////////////
