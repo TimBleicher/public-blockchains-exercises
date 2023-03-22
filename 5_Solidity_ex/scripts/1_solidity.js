@@ -105,7 +105,7 @@
 
 // https://solidity-by-example.org/variables/
 
-// Create a new _global_ variable of type `string` and query it via Ether.JS
+// Create a new state variable of type `string` and query it via Ether.JS
 // (after deployment). Notice the difference if you declare it public or not.
 
 // c. The new variable you created at point b. is never changing, i.e., it is
@@ -119,6 +119,7 @@
 
 // Hint: https://solidity-by-example.org/immutable/
 
+
 async function readVar() {
     console.log("Exercise 1: Read Var");
 
@@ -127,9 +128,15 @@ async function readVar() {
     // 4_Hardhat/2_ex_deploy.js
 
     // Your code here!
+    const contractName = "Lock2";
+    const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    const aSigners = await hre.ethers.getSigners();
+    const hhSigner = aSigners[0];
+    const lock = await hre.ethers.getContractAt(contractName, contractAddress, hhSigner);
+    console.log(await lock.test());
 };
 
-// readVar();
+//readVar();
 
 // Bonus. Exercise 2B. Utility Function.
 ////////////////////////////////////////
@@ -152,6 +159,10 @@ async function readVar() {
 async function getContractAndSigner(cName, cAddress, signerIdx = 0) {
   
     // Your code here!
+    const aSigners = await hre.ethers.getSigners();
+    const hhSigner = aSigners[signerIdx];
+    const lock = await hre.ethers.getContractAt(cName, cAddress, hhSigner);
+    return [ lock, hhSigner ];
 
 }
 
@@ -179,11 +190,11 @@ async function getContractAndSigner(cName, cAddress, signerIdx = 0) {
 // case, we set the "value" option that specifies how much ether to send
 // along with a transaction (as we did in 3_EtherJS/3_signer.js).
 
-// c. Let's create a new global variable that stores the block number
+// c. Let's create a new state variable that stores the block number
 // at which the contract is deployed. This variable should be initialized in
 // the constructor. How should it be declared?
 
-// Hint: you can get the block number from the state variable `block`.
+// Hint: you can get the block number from the global variable `block`.
 
 // Checkpoint. How can you find out the block at which a contract was deployed
 // if you don't keep track of the block number?
@@ -192,9 +203,12 @@ async function constructor() {
     console.log("Exercise 3: Constructor");
 
     // Your code here!
+    const [lock] = await getContractAndSigner("Lock3","0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512");
+    const blockNumber = await lock.blocknumber();
+    console.log(Number(blockNumber));
 }
 
-constructor();
+//constructor();
 
 // Exercise 4. Events (and reverts).
 ////////////////////////////////////
@@ -237,9 +251,23 @@ async function events() {
     console.log("Exercise 4: Events");
 
     // Your code here!
+    const [lock] = await getContractAndSigner("Lock3","0x5FbDB2315678afecb367f032d93F642f64180aa3");
+    lock.on('WithdrawalAttempt', (balance, timestamp, address) => {
+        console.log("Withrawal Balance: ", balance);
+        console.log("Withrawal Timestamp: ", timestamp);
+        console.log("Withrawal Adress: ", address);
+    })
+
+    try {
+        await lock.withdraw();
+    }
+    catch (e) {
+        console.log("An exception occurred.");
+    }
+
 }
 
-// events();
+//events();
 
 // f. Bonus. You can query all the past events of a smart contract using
 
@@ -296,19 +324,42 @@ async function mappings() {
     console.log("Advanced. Exercise 5: Mappings (and payable)");
 
     // Your code here!
+    const contractName = "Lock4";
+    const contractAddress = "0x68B1D87F95878fE05B998F19b66F4baba5De1aed";
+    //Get lock and signer
+    const [ lock0, signer0 ] = await getContractAndSigner(contractName, contractAddress, 0);
+    const [ lock1, signer1 ] = await getContractAndSigner(contractName, contractAddress, 1);
+    const [ lock2, signer2 ] = await getContractAndSigner(contractName, contractAddress, 2);
+
+    //Add as owner
+    await lock0.addOwner(signer0.address);
+    await lock0.addOwner(signer1.address);
+    await getContractStatus(lock0);
+
+    await checkBalanceBeforeAfter(signer0,lock0);
 }
 
 const checkBalanceBeforeAfter = async (signer, lockContract) => {
     // Check the balance change for signer.
   
     // Your code here!
-    
+    let balanceBefore = await signer.getBalance();
+    let trans = await lockContract.withdraw();
+    trans.wait();
+    let balanceAfter = await signer.getBalance();
+    let diff = BigInt(balanceAfter) - BigInt(balanceBefore);
+    console.log("Balance difference before/after withdraw: ", ethers.utils.formatEther(diff));
+    await getContractStatus(lockContract);
 };
 
 const getContractStatus = async lockContract => {
     // Report info about contract.
   
     // Your code here!
+    console.log("Number of Owners: ", await lockContract.countOwners());
+    let amount = await hre.ethers.provider.getBalance(lockContract.address);
+    amount = ethers.utils.formatEther(amount);
+    console.log("Amount of Ether: ", amount);
 };
 
-// mappings();
+mappings();
