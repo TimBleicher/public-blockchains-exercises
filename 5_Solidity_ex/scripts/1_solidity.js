@@ -253,21 +253,28 @@ async function events() {
     // Your code here!
     const [lock] = await getContractAndSigner("Lock3","0x5FbDB2315678afecb367f032d93F642f64180aa3");
     lock.on('WithdrawalAttempt', (balance, timestamp, address) => {
+        console.log("-------------- Withdrawal Attepmpt --------------");
         console.log("Withrawal Balance: ", balance);
         console.log("Withrawal Timestamp: ", timestamp);
         console.log("Withrawal Adress: ", address);
-    })
+    });
+
+    lock.on("Withdrawal", (balance, timestamp) => {
+        console.log("-------------- Withdrawal --------------");
+        console.log("Balance: ", balance);
+        console.log("Timestamp: ", timestamp);
+    });
 
     try {
         await lock.withdraw();
     }
     catch (e) {
-        console.log("An exception occurred.");
+        console.log(e);
     }
 
 }
 
-//events();
+// events();
 
 // f. Bonus. You can query all the past events of a smart contract using
 
